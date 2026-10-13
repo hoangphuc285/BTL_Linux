@@ -1,0 +1,5 @@
+# Loại bỏ các file chứa private key và cấu hình live
+*.key
+*.private
+privatekey
+wg0.conf
