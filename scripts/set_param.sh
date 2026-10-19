@@ -26,5 +26,12 @@ case "$KEY" in
     echo "Đã đặt MTU = $VAL." ;;
   endpoint) set_env SERVER_ENDPOINT "$VAL"; echo "Client tạo MỚI sẽ dùng Endpoint $VAL." ;;
   dns)      set_env CLIENT_DNS "$VAL";      echo "Client tạo MỚI sẽ dùng DNS $VAL." ;;
-  *) echo "Tham số không hợp lệ."; exit 1 ;;
+    tunnel)
+    case "$VAL" in
+      full)  set_env CLIENT_ALLOWED "0.0.0.0/0, ::/0" ;;
+      split) set_env CLIENT_ALLOWED "10.8.0.0/24" ;;
+      *) echo "Dùng: $0 tunnel <full|split>"; exit 1 ;;
+    esac
+    echo "Client tạo MỚI sẽ dùng chế độ $VAL tunnel." ;;
+*) echo "Tham số không hợp lệ."; exit 1 ;;
 esac
