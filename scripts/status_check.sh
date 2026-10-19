@@ -4,6 +4,6 @@ require_root
 
 echo "Dịch vụ    : $(systemctl is-active "wg-quick@$WG_IF")"
 echo "IP forward : $(sysctl -n net.ipv4.ip_forward)"
-echo "Cổng nghe  : $(ss -ulnH | grep -c ":$SERVER_PORT ") (1 = đang nghe)"
+ss -ulnH | grep -q ":$SERVER_PORT " && echo "Cổng nghe  : $SERVER_PORT/udp (OK)" || echo "Cổng nghe  : KHÔNG nghe trên $SERVER_PORT/udp"
 echo "-----"
 wg show "$WG_IF"

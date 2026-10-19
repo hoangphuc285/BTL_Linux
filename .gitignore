@@ -1,9 +1,5 @@
 *.key
-*.private
-privatekey
-publickey
-preshared.key
 wg0.conf
-server.env
 clients/
-*.bak
+server.env
+*.bak.*
