@@ -1,0 +1,56 @@
+From a58888da2e73742e3d48517c75b6a2a42e74832a Mon Sep 17 00:00:00 2001
+From: hoangphuc285 <hoangphuc2855@gmail.com>
+Date: Sun, 15 Nov 2026 13:26:03 +0000
+Subject: [PATCH] wg show: add ACTIVE/STALE handshake label; custom version
+ string
+
+---
+ src/show.c | 11 +++++++++--
+ src/wg.c   |  2 +-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/show.c b/src/show.c
+index 0f6eab8..6c41e89 100644
+--- a/src/show.c
++++ b/src/show.c
+@@ -154,6 +154,8 @@ static size_t pretty_time(char *buf, const size_t len, unsigned long long left)
+ 	return offset;
+ }
+ 
++#define HANDSHAKE_STALE_SECONDS 180
++
+ static char *ago(const struct timespec64 *t)
+ {
+ 	static char buf[1024];
+@@ -236,8 +238,13 @@ static void pretty_print(struct wgdevice *device)
+ 				terminal_printf("%s" TERMINAL_FG_CYAN "/" TERMINAL_RESET "%u%s", ip(allowedip), allowedip->cidr, allowedip->next_allowedip ? ", " : "\n");
+ 		} else
+ 			terminal_printf("(none)\n");
+-		if (peer->last_handshake_time.tv_sec)
+-			terminal_printf("  " TERMINAL_BOLD "latest handshake" TERMINAL_RESET ": %s\n", ago(&peer->last_handshake_time));
++		if (peer->last_handshake_time.tv_sec) {
++			time_t hs_age = time(NULL) - peer->last_handshake_time.tv_sec;
++			if (hs_age > HANDSHAKE_STALE_SECONDS)
++				terminal_printf("  " TERMINAL_BOLD "latest handshake" TERMINAL_RESET ": %s " TERMINAL_FG_RED "[STALE]" TERMINAL_RESET "\n", ago(&peer->last_handshake_time));
++			else
++				terminal_printf("  " TERMINAL_BOLD "latest handshake" TERMINAL_RESET ": %s " TERMINAL_FG_GREEN "[ACTIVE]" TERMINAL_RESET "\n", ago(&peer->last_handshake_time));
++		}
+ 		if (peer->rx_bytes || peer->tx_bytes) {
+ 			terminal_printf("  " TERMINAL_BOLD "transfer" TERMINAL_RESET ": ");
+ 			terminal_printf("%s received, ", bytes(peer->rx_bytes));
+diff --git a/src/wg.c b/src/wg.c
+index 3790c87..ddd1f5c 100644
+--- a/src/wg.c
++++ b/src/wg.c
+@@ -42,7 +42,7 @@ int main(int argc, const char *argv[])
+ 	PROG_NAME = argv[0];
+ 
+ 	if (argc == 2 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version") || !strcmp(argv[1], "version"))) {
+-		printf("wireguard-tools v%s - https://git.zx2c4.com/wireguard-tools/\n", WIREGUARD_TOOLS_VERSION);
++		printf("wireguard-tools v%s (custom build) - https://git.zx2c4.com/wireguard-tools/\n", WIREGUARD_TOOLS_VERSION);
+ 		return 0;
+ 	}
+ 	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") || !strcmp(argv[1], "help"))) {
+-- 
+2.53.0
+

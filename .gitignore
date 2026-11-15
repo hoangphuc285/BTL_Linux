@@ -3,3 +3,4 @@ wg0.conf
 clients/
 server.env
 *.bak.*
+opensource/wireguard-tools/

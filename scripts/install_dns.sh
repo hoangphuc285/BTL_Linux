@@ -13,7 +13,7 @@ apt-get install -y dnsmasq dnsutils
 # Cấu hình chính
 cat > "$CONF" <<EOF
 listen-address=$DNS_IP
-bind-interfaces
+bind-dynamic
 no-resolv
 server=1.1.1.1
 domain=$DOMAIN
@@ -30,14 +30,7 @@ $DNS_IP wg-server.$DOMAIN web.$DOMAIN
 EOF
 fi
 
-# dnsmasq phải chạy SAU khi wg0 đã có địa chỉ 10.8.0.1
-mkdir -p /etc/systemd/system/dnsmasq.service.d
-cat > /etc/systemd/system/dnsmasq.service.d/wg.conf <<EOF
-[Unit]
-Requires=wg-quick@$WG_IF.service
-After=wg-quick@$WG_IF.service
-EOF
-systemctl daemon-reload
+# bind-dynamic: dnsmasq tự gắn vào 10.8.0.1 khi wg0 xuất hiện, nên không cần ràng buộc thứ tự với wg-quick
 
 dnsmasq --test || { echo "Cấu hình dnsmasq lỗi."; exit 1; }
 
